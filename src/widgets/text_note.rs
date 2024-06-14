@@ -73,7 +73,7 @@ impl TextNote {
     }
 
     pub fn created_at(&self) -> String {
-        DateTime::from_timestamp(self.event.created_at.as_i64(), 0)
+        DateTime::from_timestamp(self.event.created_at.as_u64() as i64, 0)
             .expect("Invalid created_at")
             .with_timezone(&Local)
             .format("%T")
@@ -88,26 +88,28 @@ impl TextNote {
         self.reposts.len()
     }
 
-    fn find_amount(&self, ev: &Event) -> Option<Tag> {
+    fn find_amount(&self, ev: &Event) -> Option<TagStandard> {
         ev.tags
             .iter()
-            .filter(|tag| matches!(tag, Tag::Amount { .. }))
+            .map(|tag| <Tag as Clone>::clone(&tag).to_standardized())
+            .filter(|tag| matches!(tag, Some(TagStandard::Amount { .. })))
             .last()
-            .cloned()
+            .flatten()
     }
 
-    fn find_reply_tag(&self) -> Option<Tag> {
+    fn find_reply_tag(&self) -> Option<TagStandard> {
         self.event
             .tags
             .iter()
-            .filter(|tag| matches!(tag, Tag::Event { .. }))
+            .map(|tag| <Tag as Clone>::clone(&tag).to_standardized())
+            .filter(|tag| matches!(tag, Some(TagStandard::Event { .. })))
             .last()
-            .cloned()
+            .flatten()
     }
 
     pub fn zap_amount(&self) -> u64 {
         self.zap_receipts.iter().fold(0, |acc, ev| {
-            if let Some(Tag::Amount { millisats, .. }) = self.find_amount(ev) {
+            if let Some(TagStandard::Amount { millisats, .. }) = self.find_amount(ev) {
                 acc + millisats
             } else {
                 acc
@@ -133,7 +135,7 @@ impl Widget for TextNote {
     fn render(self, area: Rect, buf: &mut Buffer) {
         let mut text = Text::default();
 
-        if let Some(Tag::Event { event_id, .. }) = self.find_reply_tag() {
+        if let Some(TagStandard::Event { event_id, .. }) = self.find_reply_tag() {
             if let Ok(note1) = event_id.to_bech32() {
                 text.extend(Text::styled(
                     format!("Reply to {}", note1),

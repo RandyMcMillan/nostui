@@ -40,12 +40,13 @@ impl<'a> Home<'a> {
         Self::default()
     }
 
-    fn find_last_event_tag(&self, ev: &Event) -> Option<Tag> {
+    fn find_last_event_tag(&self, ev: &Event) -> Option<TagStandard> {
         ev.tags
             .iter()
-            .filter(|tag| matches!(tag, Tag::Event { .. }))
+            .map(|tag| <Tag as Clone>::clone(&tag).to_standardized())
+            .filter(|tag| matches!(tag, Some(TagStandard::Event { .. })))
             .last()
-            .cloned()
+            .flatten()
     }
 
     fn add_note(&mut self, event: Event) {
@@ -72,7 +73,7 @@ impl<'a> Home<'a> {
 
     fn append_reaction(&mut self, reaction: Event) {
         // reactions grouped by event_id
-        if let Some(Tag::Event { event_id, .. }) = self.find_last_event_tag(&reaction) {
+        if let Some(TagStandard::Event { event_id, .. }) = self.find_last_event_tag(&reaction) {
             match self.reactions.entry(event_id) {
                 Entry::Vacant(e) => {
                     e.insert(HashSet::from([reaction]));
@@ -86,7 +87,7 @@ impl<'a> Home<'a> {
 
     fn append_repost(&mut self, repost: Event) {
         // reposts grouped by event_id
-        if let Some(Tag::Event { event_id, .. }) = self.find_last_event_tag(&repost) {
+        if let Some(TagStandard::Event { event_id, .. }) = self.find_last_event_tag(&repost) {
             match self.reposts.entry(event_id) {
                 Entry::Vacant(e) => {
                     e.insert(HashSet::from([repost]));
@@ -100,7 +101,7 @@ impl<'a> Home<'a> {
 
     fn append_zap_receipt(&mut self, zap_receipt: Event) {
         // zap receipts grouped by event_id
-        if let Some(Tag::Event { event_id, .. }) = self.find_last_event_tag(&zap_receipt) {
+        if let Some(TagStandard::Event { event_id, .. }) = self.find_last_event_tag(&zap_receipt) {
             match self.zap_receipts.entry(event_id) {
                 Entry::Vacant(e) => {
                     e.insert(HashSet::from([zap_receipt]));
