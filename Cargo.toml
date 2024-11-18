@@ -92,7 +92,7 @@ version = "0.4.20"
 version = "0.26"
 
 [dependencies.ratatui]
-version = "0.25.0"
+version = "0.24.0"
 features = [
     "serde",
     "macros",
@@ -148,7 +148,7 @@ features = [
 version = "0.4.0"
 
 [dependencies.tui-widget-list]
-version = "0.6.1"
+version = "0.5.0"
 
 [dependencies.unicode-width]
 version = "0.1.11"

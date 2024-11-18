@@ -74,20 +74,14 @@ impl Component for StatusBar {
 
     fn draw(&mut self, f: &mut Frame<'_>, area: Rect) -> Result<()> {
         let layout = Layout::new(
-            Direction::Vertical,
-            [
-                Constraint::Min(0),
-                Constraint::Length(1),
-                Constraint::Length(1),
-            ],
         )
         .split(area);
-        f.render_widget(Clear, layout[1]);
-        f.render_widget(Clear, layout[2]);
+        //f.render_widget(Clear, layout[1]);
+        //f.render_widget(Clear, layout[2]);
 
         let name = Span::styled(self.name(), Style::default().fg(Color::Gray).italic());
         let status_line = Paragraph::new(name).style(Style::default().bg(Color::Black));
-        f.render_widget(status_line, layout[1]);
+        f.render_widget(status_line, layout[0]);
 
         let message_line = if self.is_loading {
             Paragraph::new("Loading...")
