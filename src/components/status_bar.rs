@@ -73,30 +73,24 @@ impl Component for StatusBar {
     }
 
     fn draw(&mut self, f: &mut Frame<'_>, area: Rect) -> Result<()> {
-        let layout = Layout::new(
-        )
-        .split(area);
-        //f.render_widget(Clear, layout[1]);
-        //f.render_widget(Clear, layout[2]);
-
     let layout = Layout::default()
         .direction(Direction::Vertical)
-        .constraints([Constraint::Length(5), Constraint::Min(0)])
-        .split(Rect::new(0, 0, 10, 10));
-    f.render_widget(Paragraph::new("foo"), layout[0]);
-    f.render_widget(Paragraph::new("bar"), layout[1]);
+        .constraints([Constraint::Min(1), Constraint::Min(0), Constraint::Min(1), Constraint::Min(1)])
+        .split(area);
+    f.render_widget(Paragraph::new("gnostr"), layout[0]);
+    //f.render_widget(Paragraph::new("chat"), layout[1]);
 
 
         let name = Span::styled(self.name(), Style::default().fg(Color::Gray).italic());
         let status_line = Paragraph::new(name).style(Style::default().bg(Color::Black));
-        f.render_widget(status_line, layout[0]);
+        f.render_widget(status_line, layout[2]);
 
         let message_line = if self.is_loading {
             Paragraph::new("Loading...")
         } else {
             Paragraph::new(self.message.clone().unwrap_or_default())
         };
-        f.render_widget(message_line, layout[1]);
+        f.render_widget(message_line, layout[3]);
 
         Ok(())
     }
