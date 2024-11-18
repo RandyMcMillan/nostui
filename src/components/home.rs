@@ -7,7 +7,7 @@ use nostr_sdk::prelude::*;
 use ratatui::{prelude::*, widgets, widgets::*};
 use sorted_vec::ReverseSortedSet;
 use tokio::sync::mpsc::UnboundedSender;
-use tui_textarea::TextArea;
+use ratatui_textarea::TextArea;
 use tui_widget_list::List;
 
 use super::{Component, Frame};
@@ -139,8 +139,8 @@ impl<'a> Home<'a> {
     }
 
     fn clear_input(&mut self) {
-        self.input.select_all();
-        self.input.delete_str(usize::MAX);
+        //self.input.select_all();
+        self.input.delete_str(usize::MAX, usize::MAX);
     }
 }
 
@@ -276,16 +276,16 @@ impl<'a> Component for Home<'a> {
                     shorten_hex(&reply_to.pubkey.to_string())
                 };
 
-                widgets::Block::default()
+                ratatui::widgets::block::Block::default()
                     .borders(Borders::ALL)
                     .title(format!("Replying to {name}: Press ESC to close"))
             } else {
-                widgets::Block::default()
+                ratatui::widgets::block::Block::default()
                     .borders(Borders::ALL)
                     .title("New note: Press ESC to close")
             };
-            self.input.set_block(block);
-            f.render_widget(self.input.widget(), input_area);
+            //self.input.set_block(block);
+            //f.render_widget(self.input.widget(), input_area);
         }
 
         Ok(())
