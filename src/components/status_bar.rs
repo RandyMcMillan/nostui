@@ -77,8 +77,8 @@ impl Component for StatusBar {
         .direction(Direction::Vertical)
         .constraints([Constraint::Min(1), Constraint::Min(0), Constraint::Min(1), Constraint::Min(1)])
         .split(area);
-    f.render_widget(Paragraph::new("gnostr"), layout[0]);
-    //f.render_widget(Paragraph::new("chat"), layout[1]);
+    f.render_widget(Paragraph::new(""), layout[0]);
+    f.render_widget(Paragraph::new(""), layout[1]);
 
 
         let name = Span::styled(self.name(), Style::default().fg(Color::Gray).italic());
