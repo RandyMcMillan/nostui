@@ -3,14 +3,14 @@ use regex::Regex;
 
 #[derive(Debug, PartialEq, Eq)]
 pub struct Reference {
-    // TODO: Add search index
-    nip21: Nip21,
-    value: String,
+    // TODO: Add index
+    nip19: Nip19,  // TODO: Use Nip21
+    value: String, // TODO: NostrURI
 }
 
 impl Reference {
-    pub fn new(nip21: Nip21, value: String) -> Self {
-        Self { nip21, value }
+    pub fn new(nip19: Nip19, value: String) -> Self {
+        Self { nip19, value }
     }
 
     pub fn find(text: &str) -> Vec<Self> {
@@ -19,11 +19,14 @@ impl Reference {
         pattern
             .captures_iter(text)
             .filter_map(|capture| {
-                let (_, [uri, _]) = capture.extract();
+                let (_, [uri, prefix]) = capture.extract();
+                let maybe_nip19 = match prefix {
+                    "npub" => XOnlyPublicKey::from_nostr_uri(uri).ok().map(Nip19::Pubkey),
+                    "note" => EventId::from_nostr_uri(uri).ok().map(Nip19::EventId),
+                    _ => unreachable!("unsupported nip27 prefix"),
+                };
 
-                Nip21::parse(uri)
-                    .ok()
-                    .map(|nip21| Reference::new(nip21, uri.to_string()))
+                maybe_nip19.map(|nip19| Reference::new(nip19, uri.to_string()))
             })
             .collect()
     }
@@ -49,7 +52,7 @@ mod tests {
         "Hello, nostr:npub1f5uuywemqwlejj2d7he6zjw8jz9wr0r5z6q8lhttxj333ph24cjsymjmug!",
         vec![
             Reference::new(
-                Nip21::Pubkey(PublicKey::from_nostr_uri("nostr:npub1f5uuywemqwlejj2d7he6zjw8jz9wr0r5z6q8lhttxj333ph24cjsymjmug").unwrap()),
+                Nip19::Pubkey(XOnlyPublicKey::from_nostr_uri("nostr:npub1f5uuywemqwlejj2d7he6zjw8jz9wr0r5z6q8lhttxj333ph24cjsymjmug").unwrap()),
                 String::from("nostr:npub1f5uuywemqwlejj2d7he6zjw8jz9wr0r5z6q8lhttxj333ph24cjsymjmug")
             )
         ])
@@ -58,7 +61,7 @@ mod tests {
         "Hello, nostr:note1jnnkqfzn70k6z94nwljdnaw5s5pd8jlf0eyjfmc2pvsytvsa7unsex9dyv!",
         vec![
             Reference::new(
-                Nip21::EventId(EventId::from_nostr_uri("nostr:note1jnnkqfzn70k6z94nwljdnaw5s5pd8jlf0eyjfmc2pvsytvsa7unsex9dyv").unwrap()),
+                Nip19::EventId(EventId::from_nostr_uri("nostr:note1jnnkqfzn70k6z94nwljdnaw5s5pd8jlf0eyjfmc2pvsytvsa7unsex9dyv").unwrap()),
                 String::from("nostr:note1jnnkqfzn70k6z94nwljdnaw5s5pd8jlf0eyjfmc2pvsytvsa7unsex9dyv")
             )
         ])
@@ -70,15 +73,15 @@ mod tests {
         "#,
         vec![
             Reference::new(
-                Nip21::Pubkey(PublicKey::from_nostr_uri("nostr:npub1f5uuywemqwlejj2d7he6zjw8jz9wr0r5z6q8lhttxj333ph24cjsymjmug").unwrap()),
+                Nip19::Pubkey(XOnlyPublicKey::from_nostr_uri("nostr:npub1f5uuywemqwlejj2d7he6zjw8jz9wr0r5z6q8lhttxj333ph24cjsymjmug").unwrap()),
                 String::from("nostr:npub1f5uuywemqwlejj2d7he6zjw8jz9wr0r5z6q8lhttxj333ph24cjsymjmug")
             ),
             Reference::new(
-                Nip21::Pubkey(PublicKey::from_nostr_uri("nostr:npub1f5uuywemqwlejj2d7he6zjw8jz9wr0r5z6q8lhttxj333ph24cjsymjmug").unwrap()),
+                Nip19::Pubkey(XOnlyPublicKey::from_nostr_uri("nostr:npub1f5uuywemqwlejj2d7he6zjw8jz9wr0r5z6q8lhttxj333ph24cjsymjmug").unwrap()),
                 String::from("nostr:npub1f5uuywemqwlejj2d7he6zjw8jz9wr0r5z6q8lhttxj333ph24cjsymjmug")
             ),
             Reference::new(
-                Nip21::EventId(EventId::from_nostr_uri("nostr:note1jnnkqfzn70k6z94nwljdnaw5s5pd8jlf0eyjfmc2pvsytvsa7unsex9dyv").unwrap()),
+                Nip19::EventId(EventId::from_nostr_uri("nostr:note1jnnkqfzn70k6z94nwljdnaw5s5pd8jlf0eyjfmc2pvsytvsa7unsex9dyv").unwrap()),
                 String::from("nostr:note1jnnkqfzn70k6z94nwljdnaw5s5pd8jlf0eyjfmc2pvsytvsa7unsex9dyv")
             )
         ])

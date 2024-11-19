@@ -51,7 +51,6 @@ impl ReplyTagsBuilder {
                 public_key: reply_to.pubkey,
                 relay_url: None,
                 alias: None,
-                uppercase: false,
             });
         }
 
@@ -158,13 +157,12 @@ mod tests {
                 marker: Some(Marker::Root),
             },
             Tag::PublicKey {
-                public_key: PublicKey::from_str(
+                public_key: XOnlyPublicKey::from_str(
                     "4d39c23b3b03bf99494df5f3a149c7908ae1bc7416807fdd6b34a31886eaae25",
                 )
                 .unwrap(),
                 relay_url: None,
                 alias: None,
-                uppercase: false,
             },
         ];
         assert_eq!(ReplyTagsBuilder::build(root_event), expected);
@@ -190,13 +188,12 @@ mod tests {
                 marker: Some(Marker::Reply),
             },
             Tag::PublicKey {
-                public_key: PublicKey::from_str(
+                public_key: XOnlyPublicKey::from_str(
                     "4d39c23b3b03bf99494df5f3a149c7908ae1bc7416807fdd6b34a31886eaae25",
                 )
                 .unwrap(),
                 relay_url: None,
                 alias: None,
-                uppercase: false,
             },
         ];
         assert_eq!(ReplyTagsBuilder::build(reply_event), expected);
@@ -230,13 +227,12 @@ mod tests {
                 marker: Some(Marker::Reply),
             },
             Tag::PublicKey {
-                public_key: PublicKey::from_str(
+                public_key: XOnlyPublicKey::from_str(
                     "4d39c23b3b03bf99494df5f3a149c7908ae1bc7416807fdd6b34a31886eaae25",
                 )
                 .unwrap(),
                 relay_url: None,
                 alias: None,
-                uppercase: false,
             },
             Tag::Hashtag(String::from("nostr")),
         ];

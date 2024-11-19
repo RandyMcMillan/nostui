@@ -250,12 +250,12 @@ impl Listable for TextNote {
 mod tests {
     use std::str::FromStr;
 
-    use nostr_sdk::JsonUtil;
+    use nostr_sdk::{secp256k1::XOnlyPublicKey, JsonUtil};
     use pretty_assertions::assert_eq;
     use rstest::*;
 
     use super::*;
-    use crate::nostr::Profile;
+    use crate::nostr::Metadata;
 
     #[fixture]
     fn event() -> Event {
@@ -299,7 +299,7 @@ mod tests {
     ) {
         let profile = metadata.map(|metadata| {
             Profile::new(
-                nostr_sdk::PublicKey::from_str(
+                XOnlyPublicKey::from_str(
                     "4d39c23b3b03bf99494df5f3a149c7908ae1bc7416807fdd6b34a31886eaae25",
                 )
                 .unwrap(),
@@ -336,7 +336,7 @@ mod tests {
     ) {
         let profile = metadata.map(|metadata| {
             Profile::new(
-                nostr_sdk::PublicKey::from_str(
+                XOnlyPublicKey::from_str(
                     "4d39c23b3b03bf99494df5f3a149c7908ae1bc7416807fdd6b34a31886eaae25",
                 )
                 .unwrap(),

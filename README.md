@@ -1,41 +1,47 @@
 # nostui
 
-[![crates.io](https://img.shields.io/crates/v/nostui.svg)](https://crates.io/crates/nostui)
 [![CI](https://github.com/akiomik/nostui/workflows/CI/badge.svg)](https://github.com/akiomik/nostui/actions)
 
 A TUI client for [Nostr](https://nostr.com)
 
 ![screenshot](screenshot.gif)
 
-## Current Features
+## Current features
 
 - Timeline
-- Post, Reply, React, Repost
+- Post, Reply, Reaction, Repost
 
 ## Getting Started
 
-Dowonload binaries from the [release](https://github.com/akiomik/nostui/releases/latest) page.
+### Requirements
 
-Or, install manually via `crates.io`:
+- git
+- rust
+
+### Installation
+
+1. Clone this repository and move to the directory:
 
 ```shell
-cargo install nostui
+git clone https://github.com/akiomik/nostui
+cd nostui
 ```
 
-On NetBSD, a package is available from the official repositories. To install it, simply run:
+2. Install `nostui` binary:
 
 ```shell
-pkgin install nostui
+# Install to ~/.cargo/bin/nostui
+cargo install --path .
 ```
 
-## Setup
+### Setup
 
 > [!NOTE]
 > Other extensions supported are `.json5`, `.yaml`, `.toml` and `.ini`.
 
 1. Create a `config.json` to the following path:
 
-- Linux: `~/.config/nostui/config.json`
+- Linux: `~/.config/notsui/config.json`
 - Windows: `~\AppData\Roaming\0m1\nostui\config.json`
 - macOS: `~/Library/Application Support/io.0m1.nostui/config.json`
 

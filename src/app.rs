@@ -30,7 +30,7 @@ impl App {
         let home = Home::new();
         let fps = FpsCounter::default();
         let config = Config::new()?;
-        let pubkey = Keys::parse(config.privatekey.as_str())?.public_key();
+        let pubkey = Keys::from_sk_str(config.privatekey.as_str())?.public_key();
         let status_bar = StatusBar::new(pubkey, None, None, true);
         let mode = Mode::Home;
         Ok(Self {
@@ -66,7 +66,7 @@ impl App {
             component.init(tui.size()?)?;
         }
 
-        let keys = Keys::parse(self.config.privatekey.clone())?;
+        let keys = Keys::from_sk_str(&self.config.privatekey.clone())?;
         let conn = Connection::new(keys.clone(), self.config.relays.clone()).await?;
         let (mut req_rx, event_tx, terminate_tx, conn_wrapper) = ConnectionProcess::new(conn)?;
         conn_wrapper.run();
@@ -150,22 +150,22 @@ impl App {
                     Action::ReceiveEvent(ref event) => {
                         log::info!("Got nostr event: {event:?}");
                     }
-                    Action::SendReaction(ref target_event) => {
-                        let event = EventBuilder::reaction(target_event, "+").to_event(&keys)?;
+                    Action::SendReaction((id, pubkey)) => {
+                        let event = EventBuilder::new_reaction(id, pubkey, "+").to_event(&keys)?;
                         log::info!("Send reaction: {event:?}");
                         event_tx.send(event)?;
-                        let note1 = target_event.id.to_bech32()?;
+                        let note1 = id.to_bech32()?;
                         action_tx.send(Action::SystemMessage(format!("[Liked] {note1}")))?;
                     }
-                    Action::SendRepost(ref target_event) => {
-                        let event = EventBuilder::repost(target_event, None).to_event(&keys)?;
+                    Action::SendRepost((id, pubkey)) => {
+                        let event = EventBuilder::repost(id, pubkey).to_event(&keys)?;
                         log::info!("Send repost: {event:?}");
                         event_tx.send(event)?;
-                        let note1 = target_event.id.to_bech32()?;
+                        let note1 = id.to_bech32()?;
                         action_tx.send(Action::SystemMessage(format!("[Reposted] {note1}")))?;
                     }
                     Action::SendTextNote(ref content, ref tags) => {
-                        let event = EventBuilder::text_note(content, tags.iter().cloned())
+                        let event = EventBuilder::new_text_note(content, tags.iter().cloned())
                             .to_event(&keys)?;
                         log::info!("Send text note: {event:?}");
                         event_tx.send(event)?;

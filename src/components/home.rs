@@ -5,17 +5,17 @@ use std::collections::{hash_map::Entry, HashMap};
 use color_eyre::eyre::Result;
 use nostr_sdk::prelude::*;
 use ratatui::{prelude::*, widgets, widgets::*};
+use ratatui_textarea::TextArea;
 use sorted_vec::ReverseSortedSet;
 use tokio::sync::mpsc::UnboundedSender;
-use tui_textarea::TextArea;
-use tui_widget_list::List;
+use tui_widget_list::{List, ListState};
 
 use super::{Component, Frame};
 use crate::text::shorten_hex;
 use crate::{
     action::Action,
     config::Config,
-    nostr::{nip10::ReplyTagsBuilder, Profile, SortableEvent},
+    nostr::{nip10::ReplyTagsBuilder, Metadata, Profile, SortableEvent},
     widgets::ScrollableList,
     widgets::TextNote,
 };
@@ -24,14 +24,14 @@ use crate::{
 pub struct Home<'a> {
     command_tx: Option<UnboundedSender<Action>>,
     config: Config,
-    list_state: tui_widget_list::ListState,
+    list_state: ListState,
     notes: ReverseSortedSet<SortableEvent>,
-    profiles: HashMap<PublicKey, Profile>,
+    profiles: HashMap<XOnlyPublicKey, Profile>,
     reactions: HashMap<EventId, HashSet<Event>>,
     reposts: HashMap<EventId, HashSet<Event>>,
     zap_receipts: HashMap<EventId, HashSet<Event>>,
     show_input: bool,
-    input: TextArea<'a>,
+    input: ratatui_textarea::TextArea<'a>,
     reply_to: Option<Event>,
 }
 
@@ -139,8 +139,8 @@ impl<'a> Home<'a> {
     }
 
     fn clear_input(&mut self) {
-        self.input.select_all();
-        self.input.delete_str(usize::MAX);
+        //self.input.select_all();
+        self.input.delete_str(usize::MAX, usize::MAX);
     }
 }
 
@@ -192,7 +192,7 @@ impl<'a> Component for Home<'a> {
                     &self.command_tx,
                 ) {
                     let event = self.get_note(i).expect("failed to get target event");
-                    tx.send(Action::SendReaction(event.clone()))?;
+                    tx.send(Action::SendReaction((event.id, event.pubkey)))?;
                 }
             }
             Action::Repost => {
@@ -202,7 +202,7 @@ impl<'a> Component for Home<'a> {
                     &self.command_tx,
                 ) {
                     let event = self.get_note(i).expect("failed to get target event");
-                    tx.send(Action::SendRepost(event.clone()))?;
+                    tx.send(Action::SendRepost((event.id, event.pubkey)))?;
                 }
             }
             Action::Unselect => {
@@ -256,7 +256,11 @@ impl<'a> Component for Home<'a> {
             .collect();
 
         let list = List::new(items)
-            .block(widgets::Block::default().title("Timeline").padding(padding))
+            .block(
+                widgets::block::Block::default()
+                    .title("Timeline")
+                    .padding(padding),
+            )
             .style(Style::default().fg(Color::White))
             .truncate(true);
 
@@ -269,22 +273,30 @@ impl<'a> Component for Home<'a> {
             input_area.height -= 2;
             f.render_widget(Clear, input_area);
 
-            let block = if let Some(ref reply_to) = self.reply_to {
-                let name = if let Some(profile) = self.profiles.get(&reply_to.pubkey) {
-                    profile.name()
-                } else {
-                    shorten_hex(&reply_to.pubkey.to_string())
-                };
+            let mut textarea = TextArea::default();
+            let block = ratatui::widgets::block::Block::default()
+                .borders(Borders::ALL)
+                .title("Block Title");
+            textarea.set_block(block.clone());
+            assert!(textarea.block().is_some());
 
-                widgets::Block::default()
-                    .borders(Borders::ALL)
-                    .title(format!("Replying to {name}: Press ESC to close"))
-            } else {
-                widgets::Block::default()
-                    .borders(Borders::ALL)
-                    .title("New note: Press ESC to close")
-            };
+            //let block = if let Some(ref reply_to) = self.reply_to {
+            //    let name = if let Some(profile) = self.profiles.get(&reply_to.pubkey) {
+            //        profile.name()
+            //    } else {
+            //        shorten_hex(&reply_to.pubkey.to_string())
+            //    };
+
+            //    ratatui::widgets::block::Block::default()
+            //        .borders(Borders::ALL)
+            //        .title(format!("Replying to {name}: Press ESC to close"))
+            //} else {
+            //    ratatui::widgets::block::Block::default()
+            //        .borders(Borders::ALL)
+            //        .title("New note: Press ESC to close")
+            //};
             self.input.set_block(block);
+            //                     --------- ^^^^^ expected `ratatui::widgets::block::Block<'_>`, found `ratatui::widgets::Block<'_>`
             f.render_widget(self.input.widget(), input_area);
         }
 
