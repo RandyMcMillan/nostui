@@ -11,7 +11,6 @@ authors = ["Akiomi Kamakura <akiomik@gmail.com>"]
 license = "MIT"
 readme = "README.md"
 include = ["src", "LICENSE", "README.md", "screenshot.gif", ".config"]
-
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
@@ -23,6 +22,7 @@ config = "0.13.3"
 crossterm = { version = "0.27.0", features = ["serde", "event-stream"] }
 derive_deref = "1.1.1"
 directories = "5.0.1"
+dirs = "5.0.1"
 futures = "0.3.28"
 human-panic = "1.2.3"
 json5 = "0.4.1"
