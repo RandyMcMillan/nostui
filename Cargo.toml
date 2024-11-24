@@ -32,6 +32,8 @@ log = "0.4.20"
 nostr-sdk = "0.26"
 ratatui = { version = "0.25.0", features = ["serde", "macros"] }
 regex = "1.10.2"
+## nostr and nostui dep - keep in lock step
+reqwest = "0.11.23"
 serde = { version = "1.0.188", features = ["derive"] }
 serde_json = "1.0.107"
 signal-hook = "0.3.17"
