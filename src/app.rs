@@ -174,9 +174,11 @@ impl App {
                 match action {
                     Action::Tick => {
                         self.last_tick_key_events.drain(..);
-                        let action_tick_blockheight = Self::blockheight().await.unwrap_or(String::from("0"));
+                        let action_tick_blockheight =
+                            Self::blockheight().await.unwrap_or(String::from("0"));
                         log::info!("Action::Tick_blockheight:{action_tick_blockheight:?}");
-                        let action_tick_blockhash = Self::blockhash().await.unwrap_or(String::from("0"));
+                        let action_tick_blockhash =
+                            Self::blockhash().await.unwrap_or(String::from("0"));
                         log::info!("Action::Tick_blockhash:{action_tick_blockhash:?}");
 
                         //
@@ -226,6 +228,7 @@ impl App {
                         let note1 = id.to_bech32()?;
                         action_tx.send(Action::SystemMessage(format!("[Reposted] {note1}")))?;
                     }
+
                     Action::SendTextNote(ref content, ref tags) => {
                         let event = EventBuilder::new_text_note(content, tags.iter().cloned())
                             .to_event(&keys)?;
@@ -233,6 +236,7 @@ impl App {
                         event_tx.send(event)?;
                         action_tx.send(Action::SystemMessage(format!("[Posted] {content}")))?;
                     }
+
                     _ => {}
                 }
                 for component in self.components.iter_mut() {
