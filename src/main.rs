@@ -64,17 +64,49 @@ pub fn random_seed() -> u64 {
     RandomState::new().build_hasher().finish()
 }
 
-fn nanos() -> Result<(), Box<dyn Error>> {
+async fn nanos() -> Result<(), Box<dyn Error>> {
     let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.subsec_nanos();
 
     // Prints 864479511, 455850730, etc.
     println!("Random number: {nanos}");
+    log::info!(">>>>------------------------------>>>{nanos}");
+    Ok(())
+}
+
+async fn do_stuff_async() -> Result<(), Box<dyn Error>> {
+    // async work
+    let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.subsec_nanos();
+
+    // Prints 864479511, 455850730, etc.
+    println!("Random number: {nanos}");
+    log::info!("do_stuff_async>>>>------------------------------>>>{nanos}");
+    Ok(())
+}
+
+async fn more_async_work() -> Result<(), Box<dyn Error>> {
+    // more here
+    let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.subsec_nanos();
+
+    // Prints 864479511, 455850730, etc.
+    println!("Random number: {nanos}");
+    log::info!("more_async_work>>>>------------------------------>>>{nanos}");
     Ok(())
 }
 
 async fn tokio_main() -> Result<(), Box<dyn Error>> {
     let args = Cli::parse();
     let mut app = App::new(args.tick_rate, args.frame_rate)?;
+    nanos().await;
+    nanos().await;
+    nanos().await;
+    nanos().await;
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+    more_async_work().await;
+    do_stuff_async().await;
     app.run().await?;
     Ok(())
 }
@@ -83,11 +115,30 @@ async fn tokio_main() -> Result<(), Box<dyn Error>> {
 async fn main() -> Result<(), Box<dyn Error>> {
     initialize_logging()?;
     initialize_panic_handler()?;
+    nanos().await;
+    nanos().await;
+    nanos().await;
+    nanos().await;
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
     if let Err(e) = tokio_main().await {
-        let _ = nanos();
+        nanos().await;
+        log::info!(">>>>------------------------------>>>nanos");
+        log::info!(">>>>------------------------------>>>nanos");
+        log::info!(">>>>------------------------------>>>nanos");
+        log::info!(">>>>------------------------------>>>nanos");
+        log::info!(">>>>------------------------------>>>nanos");
+        log::info!(">>>>------------------------------>>>nanos");
+        log::info!(">>>>------------------------------>>>nanos");
+        log::info!(">>>>------------------------------>>>nanos");
         println!("{}", CUSTOM_PORT);
+        log::info!(">>>------------------>>>Got nostr event: {CUSTOM_PORT:?}");
         let cwd = env::current_dir().unwrap();
         let cwd_to_string_lossy: String = String::from(cwd.to_string_lossy());
+        log::info!("Got nostr event: {cwd_to_string_lossy:?}");
         println!("{}", cwd_to_string_lossy);
         let local_data_dir = data_local_dir();
         println!("{}", local_data_dir.expect("REASON").display());
@@ -113,13 +164,24 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // This task simply writes the echo response to the TcpStreams coming through the
         // channel receiver.
         echo_runtime.spawn(async move {
+            log::info!("echo_runtime.spawn");
             println!("echo_runtime.spawn");
             while let Some(mut sock) = rx.recv().await {
+                nanos().await;
+                log::info!(">>>>------------------------------>>>nanos");
+                log::info!(">>>>------------------------------>>>nanos");
+                log::info!(">>>>------------------------------>>>nanos");
+                log::info!(">>>>------------------------------>>>nanos");
+                log::info!(">>>>------------------------------>>>nanos");
+                log::info!(">>>>------------------------------>>>nanos");
+                log::info!(">>>>------------------------------>>>nanos");
+                log::info!(">>>>------------------------------>>>nanos");
                 println!("rx.recv().await");
                 //prepended bytes are lost
                 //103, 110, 111, 115, 116, 114
                 let mut buf = prepend(vec![0u8; 512], &[b'g', b'n', b'o', b's', b't', b'r']);
                 println!("pre:buf.push:\n{:?}", &buf);
+                log::info!("Got nostr event: {buf:?}");
                 //gnostr bytes
                 //114, 116, 115, 111, 110, 103
                 buf.push(b'r'); //last element 103
@@ -129,18 +191,22 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 buf.push(b'n'); //last element 116
                 buf.push(b'g'); //last element 114
                 println!("post:buf.push:\n{:?}", &buf);
+                log::info!("Got nostr event: {buf:?}");
 
-                tokio::spawn(async move {
+                tokio::join!(async move {
                     /*loop {*/
                     println!("pre:\n{:?}", &buf);
+                    log::info!(">>>>-------------------------->>>Got nostr event: {buf:?}");
                     loop {
                         let bytes_read = sock.read(&mut buf).await.expect("failed to read request");
 
                         if bytes_read == 0 {
                             println!("bytes_read = {}", bytes_read);
+                            log::info!("Got nostr event: {bytes_read:?}");
                             return;
                         }
                         println!("bytes_read = {}", bytes_read);
+                        log::info!(">>>>>>---------------->>>Got nostr event: {bytes_read:?}");
                         let mut new_buf = prepend(vec![0u8; 512], &buf);
 
                         new_buf.push(b'g'); //last element 32
@@ -153,12 +219,14 @@ async fn main() -> Result<(), Box<dyn Error>> {
                             .await
                             .expect("failed to write response");
                         println!("post:\n{:?}", new_buf);
+                        log::info!(">>>>>--------------->>>>Got nostr event: {new_buf:?}");
                         let utf8_string = String::from_utf8(new_buf)
                             .map_err(|non_utf8| {
                                 String::from_utf8_lossy(non_utf8.as_bytes()).into_owned()
                             })
                             .unwrap();
                         println!("{}", utf8_string);
+                        log::info!(">>>>>----------------->>>utf8_string: {utf8_string:?}");
                         //buf.push(b'\n');
                     }
                     /*}*/
@@ -171,6 +239,15 @@ async fn main() -> Result<(), Box<dyn Error>> {
         // incoming TcpStreams and are sent to the sender half of the channel.
         acceptor_runtime.spawn(async move {
             println!("acceptor_runtime is started");
+            nanos().await;
+            log::info!(">>>>------------------------------>>>nanos");
+            log::info!(">>>>------------------------------>>>nanos");
+            log::info!(">>>>------------------------------>>>nanos");
+            log::info!(">>>>------------------------------>>>nanos");
+            log::info!(">>>>------------------------------>>>nanos");
+            log::info!(">>>>------------------------------>>>nanos");
+            log::info!(">>>>------------------------------>>>nanos");
+            log::info!(">>>>------------------------------>>>nanos");
             let listener = match TcpListener::bind("127.0.0.1:8080").await {
                 //8080
                 Ok(l) => l,
@@ -179,6 +256,7 @@ async fn main() -> Result<(), Box<dyn Error>> {
 
             loop {
                 println!("acceptor_runtime loop:listener:8080");
+                log::info!("loop:listener:8080");
                 let sock = match accept_conn(&listener).await {
                     Ok(stream) => stream,
                     Err(e) => panic!("error reading TCP stream: {}", e),
@@ -186,6 +264,8 @@ async fn main() -> Result<(), Box<dyn Error>> {
                 let _ = tx.send(sock).await;
             }
         });
+
+        //let (first, second) = tokio::join!(do_stuff_async(), more_async_work());
 
         eprintln!("{} error: Something went wrong", env!("CARGO_PKG_NAME"));
         Err(e)
@@ -197,6 +277,7 @@ async fn accept_conn(listener: &TcpListener) -> Result<TcpStream, Box<dyn Error>
     //loop {
     /*return*/
     println!("accept_conn");
+    log::info!("accept_conn");
     match listener.accept().await {
         Ok((sock, _)) => Ok(sock),
         Err(e) => panic!("error accepting connection: {}", e),

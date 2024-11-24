@@ -14,6 +14,11 @@ use crate::{
     tui,
 };
 
+use nostr_sdk::types::time::UNIX_EPOCH;
+use nostr_sdk::types::time::SystemTime;
+use std::error::Error;
+
+
 pub struct App {
     pub config: Config,
     pub tick_rate: f64,
@@ -26,6 +31,15 @@ pub struct App {
 }
 
 impl App {
+const CUSTOM_PORT: usize = 8000;
+fn prepend<T>(v: Vec<T>, s: &[T]) -> Vec<T>
+where
+    T: Clone,
+{
+    let mut tmp: Vec<_> = s.to_owned();
+    tmp.extend(v);
+    tmp
+}    
     pub fn new(tick_rate: f64, frame_rate: f64) -> Result<Self> {
         let home = Home::new();
         let fps = FpsCounter::default();
@@ -45,7 +59,50 @@ impl App {
         })
     }
 
+
+async fn nanos() -> Result<(), Box<dyn Error>> {
+    let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.subsec_nanos();
+
+    // Prints 864479511, 455850730, etc.
+    println!("Random number: {nanos}");
+    log::info!(">>>>------------------------------>>>{nanos}");
+    Ok(())
+}
+
+async fn do_stuff_async() -> Result<(), Box<dyn Error>> {
+    // async work
+    let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.subsec_nanos();
+
+    // Prints 864479511, 455850730, etc.
+    println!("Random number: {nanos}");
+    log::info!("do_stuff_async>>>>------------------------------>>>{nanos}");
+    Ok(())
+}
+
+async fn more_async_work() -> Result<(), Box<dyn Error>> {
+    // more here
+    let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.subsec_nanos();
+
+    // Prints 864479511, 455850730, etc.
+    println!("Random number: {nanos}");
+    log::info!("more_async_work>>>>------------------------------>>>{nanos}");
+    Ok(())
+}
+
     pub async fn run(&mut self) -> Result<()> {
+
+
+
+    Self::nanos().await;
+    Self::nanos().await;
+    Self::nanos().await;
+    Self::nanos().await;
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+    log::info!(">>>>------------------------------>>>nanos");
+
         let (action_tx, mut action_rx) = mpsc::unbounded_channel();
 
         let mut tui = tui::Tui::new()?

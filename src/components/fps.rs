@@ -83,7 +83,7 @@ impl Component for FpsCounter {
         let rect = rects[0];
 
         let s = format!(
-            "{:.2} ticks per sec (app) {:.2} frames per sec (render)",
+            "{:.4} ticks per sec (app) {:.1} frames per sec (render)",
             self.app_fps, self.render_fps
         );
         let block = Block::default().title(block::Title::from(s.dim()).alignment(Alignment::Right));
