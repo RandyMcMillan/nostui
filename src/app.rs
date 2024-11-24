@@ -79,7 +79,7 @@ impl App {
     }
 
     pub async fn run(&mut self) -> Result<()> {
-        let self_nanos = Self::nanos().await;
+        let self_nanos = Self::nanos().await.unwrap();
         log::info!(">>>>------------------------------>>>{self_nanos:?}");
         Self::nanos().await;
         Self::nanos().await;
