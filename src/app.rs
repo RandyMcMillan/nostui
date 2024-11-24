@@ -58,32 +58,47 @@ impl App {
         })
     }
 
+    async fn blockhash() -> Result<String, Box<dyn Error>> {
+        let blockhash = reqwest::get("https://mempool.space/api/blocks/tip/hash")
+            .await?
+            .text()
+            .await?;
+
+        log::info!("blockhash() = {blockhash:?}");
+        Ok(blockhash)
+    }
+    async fn blockheight() -> Result<String, Box<dyn Error>> {
+        let blockheight = reqwest::get("https://mempool.space/api/blocks/tip/height")
+            .await?
+            .text()
+            .await?;
+
+        log::info!("blockheight() = {blockheight:?}");
+        Ok(blockheight)
+    }
     async fn nanos() -> Result<u32, Box<dyn Error>> {
         let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.subsec_nanos();
-        log::info!(">>>>------------------------------>>>nanos():{nanos}");
+        log::info!("nanos():{nanos}");
         Ok(nanos)
     }
 
     async fn do_stuff_async() -> Result<(), Box<dyn Error>> {
         // async work
         let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.subsec_nanos();
-        log::info!("do_stuff_async>>>>------------------------------>>>{nanos}");
+        log::info!("do_stuff_async:{nanos}");
         Ok(())
     }
 
     async fn more_async_work() -> Result<(), Box<dyn Error>> {
         // more here
         let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.subsec_nanos();
-        log::info!("more_async_work>>>>------------------------------>>>{nanos}");
+        log::info!("more_async_work:{nanos}");
         Ok(())
     }
 
     pub async fn run(&mut self) -> Result<()> {
         let self_nanos = Self::nanos().await.unwrap();
-        log::info!(">>>>------------------------------>>>self_nanos:{self_nanos:?}");
-        Self::nanos().await;
-        Self::nanos().await;
-        Self::nanos().await;
+        log::info!("self_nanos:{self_nanos:?}");
 
         let (action_tx, mut action_rx) = mpsc::unbounded_channel();
 
@@ -112,7 +127,7 @@ impl App {
 
         loop {
             let loop_nanos = Self::nanos().await.unwrap();
-            log::info!(">>>>------------------------------>>>loop_nanos:{loop_nanos:?}");
+            log::info!("loop_nanos:{loop_nanos:?}");
             if let Some(e) = tui.next().await {
                 match e {
                     tui::Event::Quit => action_tx.send(Action::Quit)?,
@@ -159,6 +174,12 @@ impl App {
                 match action {
                     Action::Tick => {
                         self.last_tick_key_events.drain(..);
+                        let action_tick_blockheight = Self::blockheight().await.unwrap_or(String::from("0"));
+                        log::info!("Action::Tick_blockheight:{action_tick_blockheight:?}");
+                        let action_tick_blockhash = Self::blockhash().await.unwrap_or(String::from("0"));
+                        log::info!("Action::Tick_blockhash:{action_tick_blockhash:?}");
+
+                        //
                     }
                     Action::Quit => self.should_quit = true,
                     Action::Suspend => self.should_suspend = true,
