@@ -60,7 +60,7 @@ impl App {
 
     async fn nanos() -> Result<u32, Box<dyn Error>> {
         let nanos = SystemTime::now().duration_since(UNIX_EPOCH)?.subsec_nanos();
-        log::info!(">>>>------------------------------>>>{nanos}");
+        log::info!(">>>>------------------------------>>>nanos():{nanos}");
         Ok(nanos)
     }
 
@@ -80,7 +80,7 @@ impl App {
 
     pub async fn run(&mut self) -> Result<()> {
         let self_nanos = Self::nanos().await.unwrap();
-        log::info!(">>>>------------------------------>>>{self_nanos:?}");
+        log::info!(">>>>------------------------------>>>self_nanos:{self_nanos:?}");
         Self::nanos().await;
         Self::nanos().await;
         Self::nanos().await;
@@ -111,8 +111,8 @@ impl App {
         conn_wrapper.run();
 
         loop {
-            Self::nanos().await;
-            log::info!(">>>>------------------------------>>>nanos");
+            let loop_nanos = Self::nanos().await.unwrap();
+            log::info!(">>>>------------------------------>>>loop_nanos:{loop_nanos:?}");
             if let Some(e) = tui.next().await {
                 match e {
                     tui::Event::Quit => action_tx.send(Action::Quit)?,
