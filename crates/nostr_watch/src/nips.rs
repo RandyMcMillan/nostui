@@ -1,13 +1,10 @@
 use clap::{App, AppSettings, SubCommand};
 use nostr_watch::run;
-fn main() {
+fn nips() {
     let matches = App::new("nostr_watch")
         .author("Nostr-SDK Developers")
         .version("v0.0.1")
         .setting(AppSettings::ArgRequiredElseHelp)
-        .subcommand(SubCommand::with_name("online"))
-        .subcommand(SubCommand::with_name("paid"))
-        .subcommand(SubCommand::with_name("offline"))
         .subcommand(SubCommand::with_name("nip0"))
         .subcommand(SubCommand::with_name("nip0"))
         .subcommand(SubCommand::with_name("nip0"))
