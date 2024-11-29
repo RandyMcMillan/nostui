@@ -15,4 +15,5 @@ nostr = { version = "0.37.0", path = "../../crates/nostr" }
 nostr-sdk = { version = "0.37.0", path = "../../crates/nostr-sdk" }
 serde = "1.0.99"
 reqwest = "0.9.20"
+serde_json.workspace = true
 

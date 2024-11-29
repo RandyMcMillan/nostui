@@ -1,21 +1,35 @@
 use reqwest::Error;
+use reqwest::Url;
 use serde::{Deserialize, Serialize};
 
-//use serde_json::{Result, Value};
+
+use std::io::Read;
+use std::process;
+use serde_json::{Result, Value};
 
 pub(crate) fn online() {
-    let request_url = "https://jsonplaceholder.typicode.com/todos/1";
-    //    println!("{}", request_url);
-    let mut response = reqwest::get(request_url).unwrap();
 
-    //    println!("resp: {:?}", response);
-    let json = response.json::<User>().unwrap();
-    println!("json: {:?}", json);
+   let url = Url::parse("https://api.nostr.watch/v1/online").unwrap();
+    let mut res = reqwest::get(url).unwrap();
 
-    //    let users: Vec<User> = response.json()?;
-    //    println!("{:?}", users);
-    //    Ok(())
+    let mut tmp_string = String::new();
+    res.read_to_string(&mut tmp_string).unwrap().to_string();
+    //println!("{:}", format!("{:}", tmp_string.to_string()));
+    tmp_string = tmp_string.replace("[","");
+    tmp_string = tmp_string.replace("]","");
+    let v: Vec<&str> = tmp_string.split(",").collect();
+    //print!("{:?}", v);
+    for relay in v {
+    print!("{:} ", relay);
 
+}
+    //Ok(tmp_string)
+
+    //let relay: Relay = serde_json::from_str(&tmp_string).expect("REASON");
+    //println!("relay: {:?}", relay);
+
+
+process::exit(0);
     let request_url = "https://jsonplaceholder.typicode.com/photos";
     let mut response = reqwest::get(request_url).unwrap();
     let json = response.json::<Vec<Photo>>().unwrap();
@@ -25,6 +39,12 @@ pub(crate) fn online() {
         .map(|photo| &photo.title)
         .collect::<Vec<&String>>();
     println!("titles: {:?}", titles)
+}
+
+#[derive(Deserialize, Debug)]
+struct Relay {
+    relay_one: String,
+    relay_two: String,
 }
 
 #[derive(Deserialize, Debug)]
