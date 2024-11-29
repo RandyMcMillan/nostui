@@ -27,12 +27,11 @@ pub(crate) fn online() {
         println!("{{{:}}}", v_json[count]);
         count += 1;
     }
-    let titles = v_relay
+    let titles = v_json
         .iter()
-        .map(|relay| &relay.relay)
+        .map(|relay| relay)
         .collect::<Vec<&String>>();
     println!("titles: {:?}", titles);
-    //Ok(tmp_string)
 
     //let relay: Relay = serde_json::from_str(&tmp_string).expect("REASON");
     //println!("relay: {:?}", relay);
