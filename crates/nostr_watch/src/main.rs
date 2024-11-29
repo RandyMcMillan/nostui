@@ -12,6 +12,8 @@ fn main() {
         .subcommand(SubCommand::with_name("nip1"))
         .subcommand(SubCommand::with_name("nip2"))
         .subcommand(SubCommand::with_name("nip3"))
+        .subcommand(SubCommand::with_name("nip4"))
+        .subcommand(SubCommand::with_name("nip5"))
         .get_matches();
 
     match matches.subcommand_name() {
