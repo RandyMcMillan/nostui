@@ -16,6 +16,7 @@ pub(crate) fn online() {
     tmp_string = tmp_string.replace("]", "");
     let v: Vec<&str> = tmp_string.split(",").collect();
     let mut v_json: Vec<String> = vec![];
+    let mut v_relay: Vec<Relay> = vec![];
     //print!("{:?}", v);
     //println!("{:?}", v[0]);
     //println!("{:?}", v[1]);
@@ -26,6 +27,11 @@ pub(crate) fn online() {
         println!("{{{:}}}", v_json[count]);
         count += 1;
     }
+    let titles = v_relay
+        .iter()
+        .map(|relay| &relay.relay)
+        .collect::<Vec<&String>>();
+    println!("titles: {:?}", titles)
     //Ok(tmp_string)
 
     //let relay: Relay = serde_json::from_str(&tmp_string).expect("REASON");
