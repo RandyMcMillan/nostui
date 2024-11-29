@@ -31,7 +31,7 @@ pub(crate) fn online() {
         .iter()
         .map(|relay| &relay.relay)
         .collect::<Vec<&String>>();
-    println!("titles: {:?}", titles)
+    println!("titles: {:?}", titles);
     //Ok(tmp_string)
 
     //let relay: Relay = serde_json::from_str(&tmp_string).expect("REASON");
@@ -52,7 +52,7 @@ pub(crate) fn online() {
 #[derive(Deserialize, Debug)]
 struct Relay {
     count: u16,
-    relay_two: String,
+    relay: String,
 }
 
 #[derive(Deserialize, Debug)]
