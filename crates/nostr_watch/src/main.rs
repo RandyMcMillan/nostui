@@ -9,9 +9,9 @@ fn main() {
         .subcommand(SubCommand::with_name("paid"))
         .subcommand(SubCommand::with_name("offline"))
         .subcommand(SubCommand::with_name("nip0"))
-        .subcommand(SubCommand::with_name("nip0"))
-        .subcommand(SubCommand::with_name("nip0"))
-        .subcommand(SubCommand::with_name("nip0"))
+        .subcommand(SubCommand::with_name("nip1"))
+        .subcommand(SubCommand::with_name("nip2"))
+        .subcommand(SubCommand::with_name("nip3"))
         .get_matches();
 
     match matches.subcommand_name() {
