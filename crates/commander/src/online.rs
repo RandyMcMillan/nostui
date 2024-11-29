@@ -15,12 +15,15 @@ pub(crate) fn online() {
     tmp_string = tmp_string.replace("[", "");
     tmp_string = tmp_string.replace("]", "");
     let v: Vec<&str> = tmp_string.split(",").collect();
+    let mut v_json: Vec<String> = vec![];
     //print!("{:?}", v);
     //println!("{:?}", v[0]);
     //println!("{:?}", v[1]);
     let mut count = 0;
     for relay in v {
-        println!("{},{:} ", count, relay);
+        //println!("{},{:} ", count, relay);
+        v_json.push(format!("\"{}\":{:}", count, relay));
+        println!("{{{:}}}", v_json[count]);
         count += 1;
     }
     //Ok(tmp_string)
@@ -42,7 +45,7 @@ pub(crate) fn online() {
 
 #[derive(Deserialize, Debug)]
 struct Relay {
-    relay_one: String,
+    count: u16,
     relay_two: String,
 }
 
