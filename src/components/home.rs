@@ -274,29 +274,37 @@ impl<'a> Component for Home<'a> {
             f.render_widget(Clear, input_area);
 
             let mut textarea = TextArea::default();
-            let block = ratatui::widgets::block::Block::default()
+            let mut block = ratatui::widgets::block::Block::default()
                 .borders(Borders::ALL)
                 .title("Block Title");
             textarea.set_block(block.clone());
             assert!(textarea.block().is_some());
 
-            //let block = if let Some(ref reply_to) = self.reply_to {
-            //    let name = if let Some(profile) = self.profiles.get(&reply_to.pubkey) {
-            //        profile.name()
-            //    } else {
-            //        shorten_hex(&reply_to.pubkey.to_string())
-            //    };
+            let test_block = if let Some(ref reply_to) = self.reply_to {
 
-            //    ratatui::widgets::block::Block::default()
-            //        .borders(Borders::ALL)
-            //        .title(format!("Replying to {name}: Press ESC to close"))
-            //} else {
-            //    ratatui::widgets::block::Block::default()
-            //        .borders(Borders::ALL)
-            //        .title("New note: Press ESC to close")
-            //};
-            self.input.set_block(block);
-            //                     --------- ^^^^^ expected `ratatui::widgets::block::Block<'_>`, found `ratatui::widgets::Block<'_>`
+
+                let name = if let Some(profile) = self.profiles.get(&reply_to.pubkey) {
+                    profile.name()
+                } else {
+                    shorten_hex(&reply_to.pubkey.to_string())
+                };
+
+                ratatui::widgets::block::Block::default()
+                    .borders(Borders::ALL)
+                    .title(format!("Replying to {name}: Press ESC to close"))
+
+            } else {
+
+                ratatui::widgets::block::Block::default()
+                    .borders(Borders::ALL)
+                    .title("New note: Press ESC to close")
+            };
+
+
+
+            //self.input.set_block(block);
+            self.input.set_block(test_block);
+            //                   --------- ^^^^^ expected `ratatui::widgets::block::Block<'_>`, found `ratatui::widgets::Block<'_>`
             f.render_widget(self.input.widget(), input_area);
         }
 
