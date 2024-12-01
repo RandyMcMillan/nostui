@@ -11,7 +11,7 @@
 
 [package]
 edition = "2021"
-name = "nostui"
+name = "gnost-ui"
 version = "0.1.0"
 authors = ["Akiomi Kamakura <akiomik@gmail.com>"]
 include = [
