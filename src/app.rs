@@ -109,6 +109,7 @@ impl App {
 
             while let Ok(event) = req_rx.try_recv() {
                 action_tx.send(Action::ReceiveEvent(event))?;
+                action_tx.send(Action::Refresh)?;
             }
 
             while let Ok(action) = action_rx.try_recv() {
@@ -124,6 +125,18 @@ impl App {
                     Action::Resume => self.should_suspend = false,
                     Action::Resize(w, h) => {
                         tui.resize(Rect::new(0, 0, w, h))?;
+                        tui.draw(|f| {
+                            for component in self.components.iter_mut() {
+                                let r = component.draw(f, f.size());
+                                if let Err(e) = r {
+                                    action_tx
+                                        .send(Action::Error(format!("Failed to draw: {:?}", e)))
+                                        .unwrap();
+                                }
+                            }
+                        })?;
+                    }
+                    Action::Refresh => {
                         tui.draw(|f| {
                             for component in self.components.iter_mut() {
                                 let r = component.draw(f, f.size());
