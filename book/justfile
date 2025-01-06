@@ -1,0 +1,15 @@
+[private]
+init:
+	@mdbook --version || cargo binstall mdbook --version 0.4.40 || cargo install mdbook --version 0.4.40
+	@mdbook-linkcheck --version || cargo binstall mdbook-linkcheck --version 0.7.7 || cargo install mdbook-linkcheck --version 0.7.7
+	@mdbook-admonish --version || cargo binstall mdbook-admonish --version 1.15.0 || cargo install mdbook-admonish --version 1.15.0
+	@mdbook-snippets --version || cargo binstall --path ./snippets-processor || cargo install --path ./snippets-processor
+
+build: init
+	mdbook build
+
+serve: init
+	mdbook serve
+
+test:
+	cd snippets && just test
