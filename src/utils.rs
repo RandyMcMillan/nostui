@@ -26,7 +26,7 @@ lazy_static! {
 }
 
 fn project_directory() -> Option<ProjectDirs> {
-    ProjectDirs::from("io", "0m1", env!("CARGO_PKG_NAME"))
+    ProjectDirs::from("org", "gnostr", env!("CARGO_PKG_NAME"))
 }
 
 pub fn initialize_panic_handler() -> Result<()> {
