@@ -148,6 +148,7 @@ mod tests {
     fn create_test_tab_type() -> TimelineTabType {
         TimelineTabType::UserTimeline {
             pubkey: PublicKey::from_slice(&[1u8; 32]).expect("valid public key"),
+            // Note: [0u8; 32] is not a valid secp256k1 x-coordinate; [1u8; 32] is.
         }
     }
 

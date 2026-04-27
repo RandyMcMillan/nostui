@@ -352,7 +352,9 @@ impl NostrEvents {
                     match cmd {
                         Some(NostrCommand::Shutdown) => {
                             // Disconnect from all relays and exit
-                            let _ = client.disconnect().await;
+                            if let Err(e) = client.disconnect().await {
+                                log::warn!("Error during relay disconnect: {e}");
+                            }
                             break;
                         }
                         Some(cmd) => {
