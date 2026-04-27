@@ -105,7 +105,7 @@ impl TimelineTab {
                 .get(&pubkey)
                 .and_then(|profile| profile.handle())
                 .unwrap_or_else(|| {
-                    let Ok(npub) = pubkey.to_bech32();
+                    let npub = pubkey.to_bech32().unwrap_or_default();
                     shorten_npub(npub)
                 }),
         }

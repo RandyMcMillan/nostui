@@ -1,6 +1,7 @@
 use std::borrow::Cow;
 use std::error::Error;
 
+use async_trait::async_trait;
 use nostr_sdk::prelude::*;
 use strum::Display;
 
@@ -22,49 +23,18 @@ impl PublicKeySigner {
     }
 }
 
+#[async_trait]
 impl NostrSigner for PublicKeySigner {
     fn backend(&self) -> SignerBackend<'_> {
         SignerBackend::Custom(Cow::Borrowed("PublicKeySigner"))
     }
 
-    fn get_public_key(&self) -> BoxedFuture<'_, Result<PublicKey, SignerError>> {
-        Box::pin(async { Ok(self.pubkey) })
+    async fn get_public_key(&self) -> Result<PublicKey, SignerError> {
+        Ok(self.pubkey)
     }
 
-    fn sign_event(&self, _unsigned: UnsignedEvent) -> BoxedFuture<'_, Result<Event, SignerError>> {
-        Box::pin(async { Err(SignerError::backend(PublicKeySignerError::Readonly)) })
-    }
-
-    fn nip04_encrypt<'a>(
-        &'a self,
-        _public_key: &'a PublicKey,
-        _content: &'a str,
-    ) -> BoxedFuture<'a, Result<String, SignerError>> {
-        Box::pin(async { Err(SignerError::backend(PublicKeySignerError::Readonly)) })
-    }
-
-    fn nip04_decrypt<'a>(
-        &'a self,
-        _public_key: &'a PublicKey,
-        _encrypted_content: &'a str,
-    ) -> BoxedFuture<'a, Result<String, SignerError>> {
-        Box::pin(async { Err(SignerError::backend(PublicKeySignerError::Readonly)) })
-    }
-
-    fn nip44_encrypt<'a>(
-        &'a self,
-        _public_key: &'a PublicKey,
-        _content: &'a str,
-    ) -> BoxedFuture<'a, Result<String, SignerError>> {
-        Box::pin(async { Err(SignerError::backend(PublicKeySignerError::Readonly)) })
-    }
-
-    fn nip44_decrypt<'a>(
-        &'a self,
-        _public_key: &'a PublicKey,
-        _payload: &'a str,
-    ) -> BoxedFuture<'a, Result<String, SignerError>> {
-        Box::pin(async { Err(SignerError::backend(PublicKeySignerError::Readonly)) })
+    async fn sign_event(&self, _unsigned: UnsignedEvent) -> Result<Event, SignerError> {
+        Err(SignerError::backend(PublicKeySignerError::Readonly))
     }
 }
 
@@ -112,65 +82,10 @@ mod tests {
         let unsigned = UnsignedEvent::new(pubkey, Timestamp::now(), Kind::TextNote, [], "hello");
 
         let result = signer.sign_event(unsigned).await;
+        assert!(result.is_err());
         assert_eq!(
-            result,
-            Err(SignerError::backend(PublicKeySignerError::Readonly))
-        );
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn nip04_encrypt_returns_readonly_error() -> color_eyre::Result<()> {
-        let pubkey = example_pubkey()?;
-        let signer = PublicKeySigner::new(pubkey);
-
-        let result = signer.nip04_encrypt(&pubkey, "hello").await;
-        assert_eq!(
-            result,
-            Err(SignerError::backend(PublicKeySignerError::Readonly))
-        );
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn nip04_decrypt_returns_readonly_error() -> color_eyre::Result<()> {
-        let pubkey = example_pubkey()?;
-        let signer = PublicKeySigner::new(pubkey);
-
-        let result = signer.nip04_decrypt(&pubkey, "payload").await;
-        assert_eq!(
-            result,
-            Err(SignerError::backend(PublicKeySignerError::Readonly))
-        );
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn nip44_encrypt_returns_readonly_error() -> color_eyre::Result<()> {
-        let pubkey = example_pubkey()?;
-        let signer = PublicKeySigner::new(pubkey);
-
-        let result = signer.nip44_encrypt(&pubkey, "hello").await;
-        assert_eq!(
-            result,
-            Err(SignerError::backend(PublicKeySignerError::Readonly))
-        );
-
-        Ok(())
-    }
-
-    #[tokio::test]
-    async fn nip44_decrypt_returns_readonly_error() -> color_eyre::Result<()> {
-        let pubkey = example_pubkey()?;
-        let signer = PublicKeySigner::new(pubkey);
-
-        let result = signer.nip44_decrypt(&pubkey, "payload").await;
-        assert_eq!(
-            result,
-            Err(SignerError::backend(PublicKeySignerError::Readonly))
+            result.unwrap_err().to_string(),
+            PublicKeySignerError::Readonly.to_string()
         );
 
         Ok(())

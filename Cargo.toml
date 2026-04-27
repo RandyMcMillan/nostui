@@ -15,6 +15,7 @@ include = ["src", "LICENSE", "README.md", "screenshot.gif", ".config"]
 # See more keys and their definitions at https://doc.rust-lang.org/cargo/reference/manifest.html
 
 [dependencies]
+async-trait = "0.1"
 better-panic = "0.3.0"
 chrono = "0.4.43"
 clap = { version = "4.5.18", features = ["derive", "cargo", "wrap_help", "unicode", "string", "unstable-styles"] }

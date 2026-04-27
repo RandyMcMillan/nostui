@@ -2647,6 +2647,7 @@ dependencies = [
 name = "nostui"
 version = "0.1.1"
 dependencies = [
+ "async-trait",
  "better-panic",
  "chrono",
  "clap",

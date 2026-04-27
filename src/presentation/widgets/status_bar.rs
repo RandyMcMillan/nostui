@@ -26,7 +26,7 @@ impl<'a> StatusBarWidget<'a> {
         if let Some(profile) = self.ctx.user_profile {
             profile.name()
         } else {
-            let Ok(npub) = self.ctx.user_pubkey.to_bech32();
+            let npub = self.ctx.user_pubkey.to_bech32().unwrap_or_default();
             shorten_npub(npub)
         }
     }

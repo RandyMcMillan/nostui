@@ -13,7 +13,7 @@ impl PublicKey {
     }
 
     pub fn shortened(&self) -> String {
-        let Ok(npub) = self.key.to_bech32();
+        let npub = self.key.to_bech32().unwrap_or_default();
         shorten_npub(npub)
     }
 }
@@ -103,11 +103,11 @@ mod tests {
 
     #[test]
     fn test_shortened_format_consistency() -> Result<()> {
-        // Test multiple keys to ensure consistent formatting
+        // Use deterministic valid secp256k1 public keys
         let keys = vec![
             "4d39c23b3b03bf99494df5f3a149c7908ae1bc7416807fdd6b34a31886eaae25",
-            "1234567890abcdef1234567890abcdef1234567890abcdef1234567890abcdef",
-            "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+            "79dff8f82963424e0bb02708a22e44b4980893e3a4be0fa3cb60a43b946764e3",
+            "32e1827635450ebb3c5a7d12c1f8e7b2b514439ac10a67eef3d9fd9c5c68e245",
         ];
 
         for key_str in keys {

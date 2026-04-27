@@ -13,7 +13,7 @@ use tears::subscription::time::{Message as TimerMessage, Timer};
 
 use crate::core::message::{AppMsg, EditorMsg, NostrMsg, SystemMsg, TimelineMsg};
 use crate::core::state::AppState;
-use crate::domain::nostr::nip38::MusicStatus;
+use crate::domain::nostr::nip38::{LiveStatus, MusicStatus};
 use crate::infrastructure::config::Config;
 use crate::infrastructure::subscription::media::MediaEvents;
 use crate::infrastructure::subscription::nostr::{
@@ -429,7 +429,7 @@ impl<'a> TearsApp<'a> {
                 // Open author timeline for the selected note's author
                 if let Some(event) = self.state.timeline.selected_note() {
                     let author_pubkey = event.author_pubkey();
-                    let Ok(author_npub) = author_pubkey.to_bech32();
+                    let author_npub = author_pubkey.to_bech32().unwrap_or_default();
                     let tab_type = TimelineTabType::UserTimeline {
                         pubkey: author_pubkey,
                     };
@@ -582,8 +582,17 @@ impl<'a> TearsApp<'a> {
                 if let MediaEvent::TrackChanged { track, .. } = event {
                     if let Some(status) = MusicStatus::new(track) {
                         let content = status.content();
-                        let event_builder =
-                            EventBuilder::live_status(status.into(), content.clone());
+                        let live_status: LiveStatus = status.into();
+                        let mut event_tags =
+                            vec![Tag::identifier(live_status.status_type.as_str())];
+                        if let Some(expiration) = live_status.expiration {
+                            event_tags.push(Tag::expiration(expiration));
+                        }
+                        if let Some(reference) = live_status.reference {
+                            event_tags.push(Tag::reference(reference));
+                        }
+                        let event_builder = EventBuilder::new(Kind::from(30315_u16), content.clone())
+                            .tags(event_tags);
 
                         self.state
                             .nostr
@@ -692,7 +701,7 @@ impl<'a> TearsApp<'a> {
                                 event.kind
                             );
                             self.state
-                                .process_nostr_event_for_tab(event.into_owned(), &tab_type);
+                                .process_nostr_event_for_tab(*event, &tab_type);
                         }
                     }
                 }
@@ -705,6 +714,7 @@ impl<'a> TearsApp<'a> {
                             message: "disconntected".to_owned(),
                         });
                 }
+                _ => {}
             },
             NostrSubscriptionMessage::Error { error } => {
                 self.state

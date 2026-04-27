@@ -1,7 +1,7 @@
 use std::collections::HashMap;
 
 use crate::{
-    domain::{nostr::Profile, text::shorten_npub},
+    domain::{nostr::Profile, nostr::nip38::LiveStatus, text::shorten_npub},
     model::timeline::text_note::TextNote,
     presentation::widgets::{
         name_with_handle::NameWithHandle, shrink_text::ShrinkText, text_note_stats::TextNoteStats,
@@ -40,7 +40,7 @@ impl<'a> TextNoteWidget<'a> {
                     .get(pubkey)
                     .map(|p| p.name())
                     .unwrap_or_else(|| {
-                        let Ok(npub) = pubkey.to_bech32();
+                        let npub = pubkey.to_bech32().unwrap_or_default();
                         shorten_npub(npub)
                     })
             })
@@ -87,7 +87,7 @@ impl<'a> Widget for TextNoteWidget<'a> {
         if let Some(TagStandard::Event { event_id, .. }) = self.text_note.find_reply_tag() {
             let mentioned_names = self.mentioned_names();
             let reply_text = if mentioned_names.is_empty() {
-                let Ok(note1) = event_id.to_bech32();
+                let note1 = event_id.to_bech32().unwrap_or_default();
                 format!("Reply to {note1}")
             } else {
                 format!("Reply to {}", mentioned_names.join(", "))
@@ -114,12 +114,7 @@ impl<'a> Widget for TextNoteWidget<'a> {
         .into();
         text.extend(content);
 
-        let meta = match self.text_note.find_client_tag() {
-            Some(TagStandard::Client { name, .. }) => {
-                format!("{} | via {name}", self.text_note.created_at())
-            }
-            _ => self.text_note.created_at(),
-        };
+        let meta = self.text_note.created_at();
         text.extend(Text::from(Line::styled(
             meta,
             Style::default().fg(Color::Gray),

@@ -43,7 +43,7 @@ impl Profile {
             handle
         } else {
             // TODO: Use shortened when fallback
-            let Ok(npub) = self.pubkey.to_bech32();
+            let npub = self.pubkey.to_bech32().unwrap_or_default();
             npub
         }
     }

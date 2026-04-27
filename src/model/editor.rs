@@ -86,7 +86,7 @@ impl<'a> Editor<'a> {
             Message::ReplyStarted { to, profile } => {
                 let reply_target_name =
                     profile.map(|profile| profile.name()).unwrap_or_else(|| {
-                        let Ok(npub) = to.pubkey.to_bech32();
+                        let npub = to.pubkey.to_bech32().unwrap_or_default();
                         shorten_npub(npub)
                     });
                 let block = Block::default().borders(Borders::ALL).title(format!(
