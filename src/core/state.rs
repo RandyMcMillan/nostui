@@ -222,7 +222,7 @@ mod tests {
 
         let author_keys = Keys::generate();
         let author_pubkey = author_keys.public_key();
-        let Ok(author_npub) = author_pubkey.to_bech32();
+        let author_npub = author_pubkey.to_bech32().unwrap_or_default();
         let user_tab = TimelineTabType::UserTimeline {
             pubkey: author_pubkey,
         };

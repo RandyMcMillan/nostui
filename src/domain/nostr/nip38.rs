@@ -1,6 +1,28 @@
 use nostr_sdk::prelude::*;
 use nowhear::Track;
 
+/// NIP-38 status types
+#[derive(Debug, Clone, PartialEq, Eq)]
+pub enum StatusType {
+    Music,
+}
+
+impl StatusType {
+    pub fn as_str(&self) -> &'static str {
+        match self {
+            StatusType::Music => "music",
+        }
+    }
+}
+
+/// NIP-38 live status
+#[derive(Debug, Clone, PartialEq)]
+pub struct LiveStatus {
+    pub status_type: StatusType,
+    pub expiration: Option<Timestamp>,
+    pub reference: Option<String>,
+}
+
 #[derive(Debug, PartialEq)]
 pub struct MusicStatus {
     track: Track,

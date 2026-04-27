@@ -117,7 +117,7 @@ impl NostrEvents {
         msg_tx: &mpsc::UnboundedSender<Message>,
     ) -> broadcast::Receiver<RelayPoolNotification> {
         match client
-            .get_contact_list_public_keys(Duration::from_secs(DEFAULT_CONTACT_LIST_TIMEOUT_SECS))
+            .get_contact_list_public_keys(Some(Duration::from_secs(DEFAULT_CONTACT_LIST_TIMEOUT_SECS)))
             .await
         {
             Ok(followings) => {
@@ -140,9 +140,9 @@ impl NostrEvents {
 
                 // Subscribe to both timeline and profile data concurrently
                 let result = tokio::try_join!(
-                    client.subscribe(timeline_backward_filter, None),
-                    client.subscribe(timeline_forward_filter, None),
-                    client.subscribe(profile_filter, None)
+                    client.subscribe(vec![timeline_backward_filter], None),
+                    client.subscribe(vec![timeline_forward_filter], None),
+                    client.subscribe(vec![profile_filter], None)
                 );
 
                 if let Ok((sub_id1, sub_id2, sub_id3)) = result {
@@ -244,7 +244,7 @@ impl NostrEvents {
                         .limit(DEFAULT_TIMELINE_LIMIT),
                 };
 
-                match client.subscribe(filter, None).await {
+                match client.subscribe(vec![filter], None).await {
                     Ok(sub_id) => {
                         // Send SubscriptionCreated to track this load-more subscription
                         let _ = msg_tx.send(Message::SubscriptionCreated {
@@ -279,8 +279,8 @@ impl NostrEvents {
 
                         // Subscribe to both filters concurrently
                         let result = tokio::try_join!(
-                            client.subscribe(backward_filter, None),
-                            client.subscribe(forward_filter, None)
+                            client.subscribe(vec![backward_filter], None),
+                            client.subscribe(vec![forward_filter], None)
                         );
 
                         match result {
@@ -308,8 +308,9 @@ impl NostrEvents {
                     subscription_ids.len()
                 );
                 for sub_id in subscription_ids {
-                    client.unsubscribe(&sub_id).await;
-                    log::info!("Unsubscribed from {sub_id:?}");
+                    let id_str = format!("{sub_id:?}");
+                    client.unsubscribe(sub_id).await;
+                    log::info!("Unsubscribed from {id_str}");
                 }
             }
             NostrCommand::Shutdown => {
@@ -351,7 +352,9 @@ impl NostrEvents {
                     match cmd {
                         Some(NostrCommand::Shutdown) => {
                             // Disconnect from all relays and exit
-                            client.disconnect().await;
+                            if let Err(e) = client.disconnect().await {
+                                log::warn!("Error during relay disconnect: {e}");
+                            }
                             break;
                         }
                         Some(cmd) => {
